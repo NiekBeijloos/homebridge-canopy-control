@@ -1,5 +1,5 @@
 {
-  "pluginAlias": "ExampleHomebridgePlugin",
+  "pluginAlias": "CanopyControl",
   "pluginType": "platform",
   "singular": true,
   "strictValidation": false,
@@ -11,6 +11,16 @@
         "type": "string",
         "required": true,
         "default": "Example Dynamic Platform"
+      },
+      "open": {
+        "title": "open canopy",
+        "type": "number",
+        "default": 17
+      },
+      "close": {
+        "title": "close canopy",
+        "type": "number",
+        "default": 27
       }
     }
   }
