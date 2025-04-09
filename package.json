@@ -4,8 +4,8 @@
   "type": "module",
   "version": "1.0.0",
   "private": true,
-  "description": "A short description about what your plugin does.",
-  "author": "Your Name",
+  "description": "Homebridge plugin to control a Teleco canopy remote",
+  "author": "Niek Beijloos",
   "license": "Apache-2.0",
   "homepage": "https://github.com/NiekBeijloos/homebridge-canopy-control/blob/latest/README.md",
   "repository": {
@@ -30,7 +30,8 @@
     "watch": "npm run build && npm link && nodemon"
   },
   "dependencies": {
-    "homebridge-lib": "^7.1.4"
+    "homebridge-lib": "^7.1.4",
+    "onoff": "^6.0.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",

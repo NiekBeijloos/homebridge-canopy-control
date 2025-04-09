@@ -5,22 +5,52 @@
   "strictValidation": false,
   "schema": {
     "type": "object",
+    "required": true,
     "properties": {
-      "name": {
-        "title": "Name",
+      "application": {
+        "title": "application",
         "type": "string",
         "required": true,
-        "default": "Example Dynamic Platform"
+        "default": "Canopy Control"
       },
-      "open": {
-        "title": "open canopy",
-        "type": "number",
-        "default": 17
+      "serialnumber": {
+        "title": "serial number",
+        "type": "string",
+        "required": true,
+        "default": "123"
       },
-      "close": {
-        "title": "close canopy",
-        "type": "number",
-        "default": 27
+      "manufacturer": {
+        "title": "manufacturer",
+        "type": "string",
+        "required": true,
+        "default": "Teleco"
+      },
+      "model": {
+        "title": "model",
+        "type": "string",
+        "required": true,
+        "default": "TVEVO868N42x"
+      },
+      "buttons":{
+        "title": "buttons",
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": true,
+          "properties": {
+            "name": {
+              "title": "button name",
+              "type": "string"
+            },
+            "gpio":{
+              "title": "gpio",
+              "type": "number",
+              "description": "The pin connected to the respective remote button",
+              "minimum": 0,
+              "maximum": 27
+            }
+          }
+        }
       }
     }
   }
