@@ -29,8 +29,9 @@ export class CanopyOutletServiceHandler implements IServiceOnEventHandler {
     if(outletEnabled){
       await this.gpio.write(Gpio.HIGH);
       await this.logGpioState();
-      await this.delay(200);
-      this.service.updateCharacteristic(this.api.hap.Characteristic.On, false);
+      setTimeout(() => {
+        this.service.updateCharacteristic(this.api.hap.Characteristic.On, false);
+      }, 200);
     } else{
       await this.gpio.write(Gpio.LOW);
       await this.logGpioState();
