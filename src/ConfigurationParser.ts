@@ -57,6 +57,7 @@ export class ConfigurationParser{
   }
 
   private parseConfiguration(config: PlatformConfig) : void {
+    this.log.info('Parsing platform configuration...');
     this.validateProperty(config.serialnumber, 'string', 'serialnumber');
     this.serialNumber = config.serialnumber;
       

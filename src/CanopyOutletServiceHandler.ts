@@ -21,7 +21,7 @@ export class CanopyOutletServiceHandler implements IServiceOnEventHandler {
 
   private async logGpioState(): Promise<void>{
     const gpioState = await this.get();
-    this.log.debug(`${this.service.displayName} connect to ${this.GpioPin} is ${gpioState ? 'high' : 'low'}`);
+    this.log.info(`${this.service.displayName} outlet connected to ${this.GpioPin} is ${gpioState ? 'high' : 'low'}`);
   }
   
   public async set(value: CharacteristicValue): Promise<void> {
@@ -30,7 +30,7 @@ export class CanopyOutletServiceHandler implements IServiceOnEventHandler {
       await this.gpio.write(Gpio.HIGH);
       await this.logGpioState();
       await this.delay(200);
-      this.service.updateCharacteristic(this.api.hap.Characteristic.On, Gpio.LOW);
+      this.service.updateCharacteristic(this.api.hap.Characteristic.On, false);
     } else{
       await this.gpio.write(Gpio.LOW);
       await this.logGpioState();
