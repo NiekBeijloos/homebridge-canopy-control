@@ -1,25 +1,26 @@
 import type { API, Characteristic, DynamicPlatformPlugin, Logging, PlatformAccessory, PlatformConfig, Service } from 'homebridge';
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings.js';
 import { CanopyAccessoryBuilder } from './CanopyAccessoryBuilder.js';
+import { ConfigurationParser } from './ConfigurationParser.js';
 
 export class CanopyControlPlatform implements DynamicPlatformPlugin {
   public readonly Service: typeof Service;
   public readonly Characteristic: typeof Characteristic;
   private canopyAccessoryBuilder: CanopyAccessoryBuilder;
+  private configurationParser: ConfigurationParser;
   public readonly cachedAccessories: Map<string, PlatformAccessory> = new Map();
-
+  
   constructor(
     public readonly log: Logging,
-    public readonly config: PlatformConfig,
+    config: PlatformConfig,
     public readonly api: API,
   ) {
     this.Service = api.hap.Service;
     this.Characteristic = api.hap.Characteristic;
-    this.canopyAccessoryBuilder = new CanopyAccessoryBuilder(this.log, this.api, this.config);
-    this.log.debug('Finished initializing platform:', this.config.application);
+    this.configurationParser = new ConfigurationParser(config, log);
+    this.canopyAccessoryBuilder = new CanopyAccessoryBuilder(this.log, this.api, this.configurationParser);
 
     this.api.on('didFinishLaunching', () => {
-      this.log.debug('Executed didFinishLaunching callback');
       this.discoverDevices();
     });
   }
@@ -30,7 +31,7 @@ export class CanopyControlPlatform implements DynamicPlatformPlugin {
   }
 
   discoverDevices() {
-    const uuid = this.api.hap.uuid.generate(this.config.serialnumber);
+    const uuid = this.api.hap.uuid.generate(this.configurationParser.getSerialNumber());
     const cachedAccessory = this.cachedAccessories.get(uuid);
     let accessory : PlatformAccessory;
     if (cachedAccessory) {
@@ -38,13 +39,13 @@ export class CanopyControlPlatform implements DynamicPlatformPlugin {
       accessory = this.canopyAccessoryBuilder.reset(cachedAccessory)
         .addCanopyMetaDataService()
         .addCanopySwitchServices()
+        .addCanopyButtonServices()
         .getResult();
     } else {
-      const name: string = this.config.application as string;
-      this.log.info('Adding new accessory:', name);
       accessory = this.canopyAccessoryBuilder.reset()
         .addCanopyMetaDataService()
         .addCanopySwitchServices()
+        .addCanopyButtonServices()
         .getResult();
       this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
     }

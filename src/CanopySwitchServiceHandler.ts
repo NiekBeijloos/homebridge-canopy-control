@@ -1,29 +1,29 @@
 import { Gpio } from 'onoff';
 import type { CharacteristicValue, Logging } from 'homebridge';
+import { IServiceOnEventHandler } from './IServiceOnEventHandler';
 
 export type GpioNumber = number;
 
-export class CanopySwitchServiceHandler {
+export class CanopySwitchServiceHandler implements IServiceOnEventHandler  {
 
   private gpio: Gpio;
 
   constructor(
         private readonly log: Logging,
         private readonly GpioPin: GpioNumber,
+        private readonly serviceName: string,
   ) {
     this.gpio = new Gpio(this.GpioPin, 'out');
-    this.gpio.writeSync(Gpio.LOW);
-    this.log.debug(`${this.GpioPin} is ${this.gpio.readSync() ? 'high' : 'low'}`);
   }
   
-  public async set(value: CharacteristicValue) {
-    const set: boolean = value as boolean;
-    if(set){
+  public async set(value: CharacteristicValue): Promise<void> {
+    const switchEnabled: boolean = value as boolean;
+    if(switchEnabled){
       await this.gpio.write(Gpio.HIGH);
     } else{
       await this.gpio.write(Gpio.LOW);
     }
-    this.log.debug(`${this.GpioPin} is ${await this.gpio.read() ? 'high' : 'low'}`);
+    this.log.info(`${this.serviceName} connect to ${this.GpioPin} is ${await this.get() ? 'high' : 'low'}`);
   }
     
   public async get(): Promise<CharacteristicValue> {
