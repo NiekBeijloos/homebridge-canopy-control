@@ -27,14 +27,16 @@
         "type": "string",
         "default": "TVEVO868N42x"
       },
-      "buttons": {
-        "title": "Toggle Buttons",
+      "triggerswitches": {
+        "title": "Trigger Switches",
+        "description": "A Trigger Switch temporarly turns ON when tapped and then 'bounces' back to the OFF state",
         "type": "array",
         "items": { "$ref": "#/$defs/items" },
         "default": []
       },
       "switches": {
         "title": "Switches",
+        "description": "A Switch remains in the given state (ON/OFF) once tapped",
         "type": "array",
         "items": { "$ref": "#/$defs/items" },
         "default": []

@@ -1,24 +1,22 @@
-import { Gpio, BinaryValue } from 'onoff';
-import type { Service, API, CharacteristicValue, Logging } from 'homebridge';
+import type { API, CharacteristicValue, Logging, Service } from 'homebridge';
 import { IServiceOnEventHandler } from './IServiceOnEventHandler';
+import { BinaryValue, Gpio } from 'onoff';
 
 export type GpioNumber = number;
 
-export class CanopySwitchServiceHandler implements IServiceOnEventHandler  {
-
+export class CanopyTriggerSwitchServiceHandler implements IServiceOnEventHandler {
   private gpio: Gpio;
-
   constructor(
-        private readonly log: Logging,
-        private readonly GpioPin: GpioNumber,
-        private readonly service: Service,
-        private readonly api: API,
+    private readonly log: Logging,
+    private readonly GpioPin: GpioNumber,
+    private readonly service: Service,
+    private readonly api: API,
   ) {
     this.gpio = new Gpio(this.GpioPin, 'out');
     this.updateGpioStateSync(Gpio.LOW);
     this.updateUIState(false);
   }
-
+  
   private updateUIState(isOn: boolean) : void{
     this.service.updateCharacteristic(this.api.hap.Characteristic.On, isOn);
   }
@@ -44,13 +42,16 @@ export class CanopySwitchServiceHandler implements IServiceOnEventHandler  {
   }
   
   public async set(value: CharacteristicValue): Promise<void> {
-    const switchEnabled: boolean = value as boolean;
-    if(switchEnabled){
-      await this.gpio.write(Gpio.HIGH);
+    const triggerSwitchisOn: boolean = value as boolean;
+    if(triggerSwitchisOn){
+      await this.updateGpioStateAsync(Gpio.HIGH);
+      setTimeout(async() => {
+        await this.updateGpioStateAsync(Gpio.LOW);
+        this.updateUIState(false);
+      }, 200);
     } else{
-      await this.gpio.write(Gpio.LOW);
+      await this.updateGpioStateAsync(Gpio.LOW);
     }
-    this.log.info(`${this.service.displayName} Switch connected to ${this.GpioPin} is ${await this.get() ? 'high' : 'low'}`);
   }
     
   public async get(): Promise<CharacteristicValue> {

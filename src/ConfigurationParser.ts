@@ -3,13 +3,20 @@ import type { Logging, PlatformConfig } from 'homebridge';
 export type GpioNumber = number;
 export type Name = string;
 
+enum ServiceType{
+  Switch,
+  TriggerSwitch
+}
+
 export class ConfigurationParser{
   private serialNumber!: string;
   private application!: string;
   private manufacturer!: string;
   private model!: string;
-  private buttonMap: Record<Name, GpioNumber> = {};
-  private switchMap: Record<Name, GpioNumber> = {};
+  private services: Record<ServiceType, Record<Name, GpioNumber>> = {
+    [ServiceType.Switch]:{},
+    [ServiceType.TriggerSwitch]:{},
+  };
 
   constructor(
     config: PlatformConfig,
@@ -56,8 +63,36 @@ export class ConfigurationParser{
     this.throwWhenPropertyIsNotOfType(expectedProperty, expectedType, propertyName);
   }
 
+  private recordContainsAttributes(records: Record<ServiceType, Record<Name, GpioNumber>>, nameAttr: string, gpioAttr: GpioNumber) : boolean {
+    let recordContainsAttributes: boolean = false;
+
+    for (const service of Object.keys(records) as unknown as ServiceType[]){
+      for (const [key, value] of Object.entries(records[service])) {
+        if(nameAttr === key || gpioAttr === value){
+          recordContainsAttributes = true;
+          break;
+        }
+      }
+    }
+    return recordContainsAttributes;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private parseSwitches(switches: any, serviceType: ServiceType, propertyName: string): void {
+    this.validateProperty(switches, 'array', propertyName);
+    for(const mySwitch of switches){
+      this.validateProperty(mySwitch.name, 'string', `${propertyName}.name`);
+      this.validateProperty(mySwitch.gpio, 'number', `${propertyName}.gpio`);
+      if(this.recordContainsAttributes(this.services, mySwitch.name, mySwitch.gpio)) { 
+        throw new Error(`${mySwitch.name} or ${mySwitch.gpio} already in use, name and/or gpio can't be used twice; check configuration!`);
+      }
+      this.services[serviceType][mySwitch.name] = mySwitch.gpio;
+    }
+  }
+
   private parseConfiguration(config: PlatformConfig) : void {
     this.log.info('Parsing platform configuration...');
+
     this.validateProperty(config.serialnumber, 'string', 'serialnumber');
     this.serialNumber = config.serialnumber;
       
@@ -70,27 +105,16 @@ export class ConfigurationParser{
     this.validateProperty(config.model, 'string', 'model');
     this.model = config.model;
 
-    this.validateProperty(config.buttons, 'array', 'buttons');
-    for(const myButton of config.buttons){
-      this.validateProperty(myButton.name, 'string', 'button.name');
-      this.validateProperty(myButton.gpio, 'number', 'button.gpio');
-      this.buttonMap[myButton.name] = myButton.gpio;
-    }
-
-    this.validateProperty(config.switches, 'array', 'switches');
-    for(const mySwitch of config.switches){
-      this.validateProperty(mySwitch.name, 'string', 'switch.name');
-      this.validateProperty(mySwitch.gpio, 'number', 'switch.gpio');
-      this.switchMap[mySwitch.name] = mySwitch.gpio;
-    }
+    this.parseSwitches(config.triggerswitches, ServiceType.TriggerSwitch, 'triggerswitches');
+    this.parseSwitches(config.switches, ServiceType.Switch, 'switches');
   }
 
-  public getButtons() : Record<Name, GpioNumber> {
-    return this.buttonMap;
+  public getTriggerSwitches() : Record<Name, GpioNumber> {
+    return this.services[ServiceType.TriggerSwitch];
   }
 
   public getSwitches() : Record<Name, GpioNumber> {
-    return this.switchMap;
+    return this.services[ServiceType.Switch];
   }
 
   public getSerialNumber() : string {

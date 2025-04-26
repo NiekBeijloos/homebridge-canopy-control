@@ -1,4 +1,4 @@
-import type { CharacteristicValue} from 'homebridge';
+import type { CharacteristicValue } from 'homebridge';
 
 export interface IServiceOnEventHandler {
   set(value: CharacteristicValue) : Promise<void>;
