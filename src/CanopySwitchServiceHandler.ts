@@ -46,11 +46,10 @@ export class CanopySwitchServiceHandler implements IServiceOnEventHandler  {
   public async set(value: CharacteristicValue): Promise<void> {
     const switchEnabled: boolean = value as boolean;
     if(switchEnabled){
-      await this.gpio.write(Gpio.HIGH);
+      await this.updateGpioStateAsync(Gpio.HIGH);
     } else{
-      await this.gpio.write(Gpio.LOW);
+      await this.updateGpioStateAsync(Gpio.LOW);
     }
-    this.log.info(`${this.service.displayName} Switch connected to ${this.GpioPin} is ${await this.get() ? 'high' : 'low'}`);
   }
     
   public async get(): Promise<CharacteristicValue> {
