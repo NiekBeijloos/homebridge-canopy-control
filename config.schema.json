@@ -40,6 +40,11 @@
         "type": "array",
         "items": { "$ref": "#/$defs/items" },
         "default": []
+      },
+      "watchdogtimeout": {
+        "title": "Watchdog that garantuees respective Switches go back to the OFF state after x milliseconds",
+        "type": "number",
+        "default": 20000
       }
     },
     "$defs":{

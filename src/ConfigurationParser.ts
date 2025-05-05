@@ -17,6 +17,7 @@ export class ConfigurationParser{
     [ServiceType.Switch]:{},
     [ServiceType.TriggerSwitch]:{},
   };
+  private watchdogTimeout!: number;
 
   constructor(
     config: PlatformConfig,
@@ -107,6 +108,9 @@ export class ConfigurationParser{
 
     this.parseSwitches(config.triggerswitches, ServiceType.TriggerSwitch, 'triggerswitches');
     this.parseSwitches(config.switches, ServiceType.Switch, 'switches');
+
+    this.validateProperty(config.watchdogtimeout, 'number', 'watchdogtimeout');
+    this.watchdogTimeout = config.watchdogtimeout;
   }
 
   public getTriggerSwitches() : Record<Name, GpioNumber> {
@@ -131,5 +135,9 @@ export class ConfigurationParser{
 
   public getModel() : string{
     return this.model;
+  }
+
+  public getWatchdogTimeout() : number{
+    return this.watchdogTimeout;
   }
 }

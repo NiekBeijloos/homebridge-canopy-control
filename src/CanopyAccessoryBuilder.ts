@@ -3,6 +3,10 @@ import { CanopySwitchServiceHandler } from './CanopySwitchServiceHandler.js';
 import { IServiceOnEventHandler } from './IServiceOnEventHandler';
 import { CanopyTriggerSwitchServiceHandler } from './CanopyTriggerSwitchServiceHandler.js';
 import { ConfigurationParser } from './ConfigurationParser.js';
+import { GpioLogDecorator } from './gpio/GpioLogDecorator.js';
+import { IGpio } from './gpio/IGpio.js';
+import { GpioHighWatchdogDecorator } from './gpio/GpioHighWatchdogDecorator.js';
+import { MyGpio } from './gpio/MyGpio.js';
 
 export class CanopyAccessoryBuilder{
   private accessory!: PlatformAccessory;
@@ -39,11 +43,15 @@ export class CanopyAccessoryBuilder{
       return this;
     }
 
-    for(const [name, gpio] of Object.entries(this.configurationParser.getSwitches())){
+    for(const [name, gpioPin] of Object.entries(this.configurationParser.getSwitches())){
       const service = this.accessory.addService(this.api.hap.Service.Outlet, name, name);
       this.setNameCharacteristic(service, name);
-      this.setOnCharacteristic(service, new CanopySwitchServiceHandler(this.log, gpio, service, this.api));
-      this.log.info(`Added ${service.displayName} Switch Service connected to gpio ${gpio} to canopy Accessory`);
+      const gpio: IGpio = 
+        new GpioHighWatchdogDecorator(
+          new GpioLogDecorator(this.log, 
+            new MyGpio(gpioPin, this.log), name), this.configurationParser.getWatchdogTimeout(), this.log);
+      this.setOnCharacteristic(service, new CanopySwitchServiceHandler(gpio, service, this.api));
+      this.log.info(`Added ${service.displayName} Switch Service connected to gpio ${gpioPin} to canopy Accessory`);
     }
 
     return this;
@@ -55,11 +63,14 @@ export class CanopyAccessoryBuilder{
       return this;
     }
     
-    for(const [name, gpio] of Object.entries((this.configurationParser.getTriggerSwitches()))){
+    for(const [name, gpioPin] of Object.entries((this.configurationParser.getTriggerSwitches()))){
       const service = this.accessory.addService(this.api.hap.Service.Outlet, name, name);
       this.setNameCharacteristic(service, name);
-      this.setOnCharacteristic(service, new CanopyTriggerSwitchServiceHandler(this.log, gpio, service, this.api));
-      this.log.info(`Added ${service.displayName} Trigger Switch Service connected to gpio ${gpio} to canopy Accessory`);
+      const gpio: IGpio = 
+        new GpioLogDecorator(this.log, 
+          new MyGpio(gpioPin, this.log), name);
+      this.setOnCharacteristic(service, new CanopyTriggerSwitchServiceHandler(gpio, service, this.api, this.log));
+      this.log.info(`Added ${service.displayName} Trigger Switch Service connected to gpio ${gpioPin} to canopy Accessory`);
     }
     
     return this;
