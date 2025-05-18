@@ -25,9 +25,8 @@
   },
   "scripts": {
     "prepare:python_env": "node src/infrastructure/create_python_venv.js requirements.txt",
-    "prepare:frontend:mark_tls_certificate_trusted": "cross-var node src/infrastructure/run_python.js src/infrastructure/mark_ca_trusted.py %CER_OUTPUT_PATH%/ca.cer",
     "prepare:generate_tls_certificate": "cross-var node src/infrastructure/run_python.js src/infrastructure/generate_certificate.py --output_path %CER_OUTPUT_PATH% --ip auto --expiration_days 3600",
-    "prepare": "cross-env CER_OUTPUT_PATH=dist/certificates/generated npm-run-all --serial prepare:python_env prepare:generate_tls_certificate prepare:frontend:mark_tls_certificate_trusted",
+    "prepare": "cross-env CER_OUTPUT_PATH=dist/certificates/generated npm-run-all --serial prepare:python_env prepare:generate_tls_certificate",
     "build": "rimraf ./dist && tsc",
     "lint": "eslint . --max-warnings=0",
     "prepublishOnly": "npm run lint && npm run build",
