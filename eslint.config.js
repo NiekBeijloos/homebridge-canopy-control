@@ -28,6 +28,10 @@ export default tseslint.config(
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
+      globals: {
+        process: 'readonly',
+        console: 'readonly',
+      },
     },
   },
   eslint.configs.recommended,
