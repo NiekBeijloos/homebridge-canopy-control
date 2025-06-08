@@ -1,15 +1,23 @@
-import { BinaryValue, Gpio, ValueCallback } from 'onoff';
+import { BinaryValue, ValueCallback } from 'onoff';
 import { IGpio } from './IGpio';
 import { Logging } from 'homebridge';
+import { Gpio as realGpio } from 'onoff';
+import { Gpio as gpioMock } from './GpioMock.js';
 
 export class MyGpio implements IGpio {
-  private gpio: Gpio;
+  private gpio: realGpio;
   private cb: ValueCallback | undefined;
   constructor(
+
     private readonly gpioPin: number,
     private readonly log: Logging,
   ) {
-    this.gpio = new Gpio(gpioPin, 'out');
+    if(realGpio.accessible){
+      this.gpio = new realGpio(gpioPin, 'out');
+    } else{
+      this.log.warn(`Pin ${gpioPin} not accessible, using mocked gpio!`);
+      this.gpio = new gpioMock(gpioPin, 'out');
+    }
   }
   
   public getPin(): number {

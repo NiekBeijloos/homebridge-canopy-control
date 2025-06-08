@@ -77,6 +77,7 @@ class tls_certificate_generator:
                 decipher_only=False
             ), critical=True)
             .add_extension(x509.AuthorityKeyIdentifier.from_issuer_public_key(ca_key.public_key()), critical=False)
+            .add_extension(x509.SubjectKeyIdentifier.from_public_key(ca_key.public_key()), critical=False)
             .sign(ca_key, hashes.SHA256())
         )
 
@@ -112,6 +113,7 @@ class tls_certificate_generator:
                 .not_valid_after(datetime.now(timezone.utc) + timedelta(days=expiration_days))
                 .add_extension(x509.BasicConstraints(ca=False, path_length=None), critical=True)
                 .add_extension(x509.SubjectAlternativeName([x509.IPAddress(ipaddress.ip_address(self.ip))]), critical=False)
+                .add_extension(x509.SubjectKeyIdentifier.from_public_key(server_certificate_request.public_key()), critical=False)
                 .sign(ca_key, hashes.SHA256())
         )
 

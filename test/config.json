@@ -1,0 +1,49 @@
+{
+    "bridge": {
+        "name": "Homebridge 99A8",
+        "username": "0E:BC:E6:5D:F3:5E",
+        "port": 51136,
+        "pin": "410-81-529",
+        "advertiser": "bonjour-hap"
+    },
+    "accessories": [],
+    "platforms": [
+        {   
+            "platform": "config",
+            "name": "Config",
+            "port": 8581,
+            "ssl": {
+                "key": "/var/lib/homebridge/certificates/generated/server.key",
+                "cert": "/var/lib/homebridge/certificates/generated/server.cer"
+            }
+        },
+        {
+            "application": "Canopy Control",
+            "serialnumber": "123",
+            "manufacturer": "Teleco",
+            "model": "TVEVO868N42x",
+            "triggerswitches": [
+                {
+                    "name": "3. fully close",
+                    "gpio": 26
+                },
+                {
+                    "name": "4. fully open",
+                    "gpio": 20
+                }
+            ],
+            "switches": [
+                {
+                    "name": "1. close",
+                    "gpio": 21
+                },
+                {
+                    "name": "2. open",
+                    "gpio": 19
+                }
+            ],
+            "watchdogtimeout": 60000,
+            "platform": "CanopyControl"
+        }
+    ]
+}
